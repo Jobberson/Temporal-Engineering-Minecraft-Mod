@@ -1,4 +1,7 @@
-package com.snog.temporalengineering;
+package com.snog.temporalengineering.client;
+
+import com.snog.temporalengineering.TemporalEngineering;
+import com.snog.temporalengineering.common.registry.ModMenuTypes;
 
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -9,9 +12,9 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import com.snog.temporalengineering.client.screen.TemporalProcessorScreen;
 
 import net.minecraft.client.gui.screens.MenuScreens;
-import com.snog.temporalengineering.client.TemporalProcessorScreen;
 
 @EventBusSubscriber(modid = TemporalEngineering.MODID, bus = Bus.MOD, value = Dist.CLIENT)
 public class ClientSetup {

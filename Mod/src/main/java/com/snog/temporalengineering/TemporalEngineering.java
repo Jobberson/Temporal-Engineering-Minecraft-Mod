@@ -1,5 +1,11 @@
 package com.snog.temporalengineering;
 
+import com.snog.temporalengineering.common.registry.ModBlocks;
+import com.snog.temporalengineering.common.registry.ModBlockEntities;
+import com.snog.temporalengineering.common.registry.ModItems;
+import com.snog.temporalengineering.common.registry.ModMenuTypes;
+import com.snog.temporalengineering.common.config.TemporalConfig;
+
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;

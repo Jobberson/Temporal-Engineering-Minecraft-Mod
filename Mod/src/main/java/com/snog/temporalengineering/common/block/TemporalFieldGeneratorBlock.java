@@ -1,4 +1,10 @@
-package com.snog.temporalengineering;
+package com.snog.temporalengineering.common.block;
+
+import com.snog.temporalengineering.common.blockentity.TemporalFieldGeneratorBlockEntity;
+import com.snog.temporalengineering.common.blockentity.TemporalProcessorBlockEntity;
+import com.snog.temporalengineering.common.registry.ModBlockEntities;
+import com.snog.temporalengineering.common.registry.ModItems;
+
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;

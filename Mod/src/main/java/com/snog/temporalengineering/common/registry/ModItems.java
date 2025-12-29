@@ -1,4 +1,8 @@
-package com.snog.temporalengineering;
+package com.snog.temporalengineering.common.registry;
+
+import com.snog.temporalengineering.TemporalEngineering;
+import com.snog.temporalengineering.common.registry.ModCreativeTabs;
+import com.snog.temporalengineering.common.registry.ModBlocks;
 
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;

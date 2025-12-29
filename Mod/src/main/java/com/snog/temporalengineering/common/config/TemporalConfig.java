@@ -1,4 +1,4 @@
-package com.snog.temporalengineering;
+package com.snog.temporalengineering.common.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
@@ -15,6 +15,15 @@ public class TemporalConfig {
     public static final ForgeConfigSpec.IntValue GENERATOR_EFFECT_DURATION_TICKS;
     public static final ForgeConfigSpec.DoubleValue GENERATOR_SPEED_MULTIPLIER;
     public static final ForgeConfigSpec.IntValue EM_THRESHOLD;
+
+    // --- Adapters section ---
+    public static final ForgeConfigSpec.BooleanValue ADAPTERS_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue NON_NATIVE_MAX_MULTIPLIER;
+    public static final ForgeConfigSpec.BooleanValue PROGRESS_PATTERN_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue PROGRESS_PATTERN_SCALE;
+    public static final ForgeConfigSpec.BooleanValue ADAPTER_VANILLA_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue ADAPTER_MEKANISM_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue ADAPTER_CREATE_ENABLED;
 
     static {
         ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
@@ -51,7 +60,32 @@ public class TemporalConfig {
         EM_THRESHOLD = b.comment("Heat threshold where processor begins producing")
                 .defineInRange("emHeatThreshold", 80, 0, 10000);
 
-        b.pop();
+        // --- adapters subsection ---
+        b.push("adapters");
+        ADAPTERS_ENABLED = b.comment("Global master toggle for adapters (true = adapters active)")
+                .define("enabled", true);
+
+        NON_NATIVE_MAX_MULTIPLIER = b.comment("Default cap on multiplier applied to non-native machines")
+                .defineInRange("non_native_max_multiplier", 4.0, 0.1, 100.0);
+
+        PROGRESS_PATTERN_ENABLED = b.comment("Enable the progress-pattern adapter (applies pattern-based acceleration)")
+                .define("progress_pattern_enabled", true);
+
+        PROGRESS_PATTERN_SCALE = b.comment("Scale applied by the progress-pattern adapter (pack tuning)")
+                .defineInRange("progress_pattern_scale", 1.0, 0.0, 100.0);
+
+        ADAPTER_VANILLA_ENABLED = b.comment("Enable vanilla adapter (affects vanilla furnaces/blocks if implemented)")
+                .define("adapter_vanilla_enabled", true);
+
+        ADAPTER_MEKANISM_ENABLED = b.comment("Enable Mekanism adapter")
+                .define("adapter_mekanism_enabled", true);
+
+        ADAPTER_CREATE_ENABLED = b.comment("Enable Create adapter")
+                .define("adapter_create_enabled", false);
+
+        b.pop(); // end adapters
+        b.pop(); // end server
+
         SPEC = b.build();
     }
 }

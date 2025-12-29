@@ -1,5 +1,7 @@
-package com.snog.temporalengineering;
+package com.snog.temporalengineering.common.registry;
 
+import com.snog.temporalengineering.TemporalEngineering;
+import com.snog.temporalengineering.common.menu.TemporalProcessorMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;

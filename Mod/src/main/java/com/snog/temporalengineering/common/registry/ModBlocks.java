@@ -1,5 +1,8 @@
-package com.snog.temporalengineering;
+package com.snog.temporalengineering.common.registry;
 
+import com.snog.temporalengineering.TemporalEngineering;
+import com.snog.temporalengineering.common.block.TemporalFieldGeneratorBlock;
+import com.snog.temporalengineering.common.block.TemporalProcessorBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.Material;
