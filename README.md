@@ -28,13 +28,11 @@
 ## Adapter API
 - Implement `TemporalAdapter` to describe how time applies to a foreign BlockEntity.
 - Register adapters in common setup, then the registry locks:
-
-  ```java
+``` java
   TemporalAdapterRegistry.register(TargetBE.class, new SomeAdapter(), 10, "SomeMod-Adapter");
 
   TemporalAdapterRegistry.lock();
-
-  ```
+```
 ## Safety Rules
 - One tick should never finish multiple operations unless explicitly allowed by config.
 - All multipliers and deltas are clamped via the centralized `TemporalTime` utility.
@@ -42,5 +40,6 @@
 
 ## Credits
 Design & code by Pedro Schenegoski. 
+
 
 This README is a quick-start; consult the full design doc for deeper context.
