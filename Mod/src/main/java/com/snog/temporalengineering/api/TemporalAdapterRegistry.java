@@ -1,5 +1,7 @@
 package com.snog.temporalengineering.api;
 
+import com.snog.temporalengineering.common.temporal.TemporalTime;
+
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.Map;
@@ -29,33 +31,42 @@ public final class TemporalAdapterRegistry {
      * Attempt to apply temporal acceleration.
      * This method MUST NEVER crash.
      */
+   
     public static boolean tryApply(
-            BlockEntity be,
-            float multiplier,
-            int durationTicks
-    ) {
+        BlockEntity be,
+        float multiplier,
+        int durationTicks
+    )
+    {
         if (be == null) return false;
 
-        // 1️⃣ Native support
-        if (be instanceof ITemporalAffectable affectable) {
-            affectable.applyTimeMultiplier(multiplier, durationTicks);
+        // Centralized cap enforcement (global + per-machine + emergency clamps)
+        float effective = TemporalTime.computeEffectiveMultiplier(be, multiplier);
+
+        // 1) Native support
+        if (be instanceof ITemporalAffectable affectable)
+        {
+            affectable.applyTimeMultiplier(effective, durationTicks);
             return true;
         }
 
-        // 2️⃣ Adapter lookup
+        // 2) Adapter lookup
         Class<?> beClass = be.getClass();
-
-        for (Map.Entry<Class<?>, TemporalAdapter> entry : ADAPTERS.entrySet()) {
-            if (entry.getKey().isAssignableFrom(beClass)) {
-                try {
-                    return entry.getValue().apply(be, multiplier, durationTicks);
-                } catch (Throwable t) {
+        for (Map.Entry<Class<?>, TemporalAdapter> entry : ADAPTERS.entrySet())
+        {
+            if (entry.getKey().isAssignableFrom(beClass))
+            {
+                try
+                {
+                    return entry.getValue().apply(be, effective, durationTicks);
+                }
+                catch (Throwable t)
+                {
                     // SAFETY RULE: adapters are allowed to fail silently
                     return false;
                 }
             }
         }
-
         return false;
     }
 }

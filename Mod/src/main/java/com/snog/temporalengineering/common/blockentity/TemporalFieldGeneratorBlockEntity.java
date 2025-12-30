@@ -5,6 +5,7 @@ import com.snog.temporalengineering.common.blockentity.TemporalProcessorBlockEnt
 import com.snog.temporalengineering.common.blockentity.TemporalFieldGeneratorBlockEntity;
 import com.snog.temporalengineering.common.registry.ModBlockEntities;
 import com.snog.temporalengineering.common.registry.ModItems;
+import com.snog.temporalengineering.api.TemporalAdapterRegistry;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -66,16 +67,20 @@ public class TemporalFieldGeneratorBlockEntity extends BlockEntity {
         }
     }
 
-    private static void applySpeedToNearby(Level level, BlockPos center, int radius, float speed, int duration) {
+    private static void applySpeedToNearby(Level level, BlockPos center, int radius, float speed, int duration){
         int r = Math.max(0, radius);
+
         for (int dx = -r; dx <= r; dx++) {
             for (int dy = -r; dy <= r; dy++) {
                 for (int dz = -r; dz <= r; dz++) {
                     BlockPos check = center.offset(dx, dy, dz);
                     if (!level.isLoaded(check)) continue;
-                    if (level.getBlockEntity(check) instanceof TemporalProcessorBlockEntity tpbe) {
-                        tpbe.applyTimeMultiplier(speed, duration);
-                    }
+
+                    BlockEntity be = level.getBlockEntity(check);
+                    if (be == null) continue;
+
+                    // Centralized application via registry (covers native + adapters)
+                    TemporalAdapterRegistry.tryApply(be, speed, duration);
                 }
             }
         }

@@ -5,6 +5,7 @@ import com.snog.temporalengineering.common.registry.ModItems;
 import com.snog.temporalengineering.common.registry.ModBlockEntities;
 import com.snog.temporalengineering.common.config.TemporalConfig;
 import com.snog.temporalengineering.common.menu.TemporalProcessorMenu;
+import com.snog.temporalengineering.common.temporal.TemporalTime;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,17 +19,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 
 import net.minecraftforge.common.util.LazyOptional;
-
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -95,7 +93,8 @@ public class TemporalProcessorBlockEntity extends BlockEntity implements MenuPro
     /**
      * Server-side tick. Deterministic accumulation model.
      */
-    public static void serverTick(Level level, BlockPos pos, BlockState state, TemporalProcessorBlockEntity be) {
+    public static void serverTick(Level level, BlockPos pos, BlockState state, TemporalProcessorBlockEntity be)
+    {
         if (level.isClientSide) return;
 
         // Read config values
@@ -108,15 +107,16 @@ public class TemporalProcessorBlockEntity extends BlockEntity implements MenuPro
 
         // === Cooling / heating ===
         if (be.tank.getFluidAmount() > 0 &&
-            be.tank.getFluid().getFluid() == net.minecraft.world.level.material.Fluids.WATER) {
-
+            be.tank.getFluid().getFluid() == net.minecraft.world.level.material.Fluids.WATER)
+        {
             be.heat = Math.max(0, be.heat - coolRate);
-
-            if (level.getGameTime() % 20 == 0) {
+            if (level.getGameTime() % 20 == 0)
+            {
                 be.tank.drain(tankDrain, IFluidHandler.FluidAction.EXECUTE);
             }
-
-        } else {
+        }
+        else
+        {
             be.heat = Math.min(be.maxHeat, be.heat + heatRate);
         }
 
@@ -124,42 +124,72 @@ public class TemporalProcessorBlockEntity extends BlockEntity implements MenuPro
         ItemStack out = be.itemHandler.getStackInSlot(0);
         boolean outputFull = !out.isEmpty() && out.getCount() >= out.getMaxStackSize();
 
-        // === Work accumulation model ===
-        if (be.heat >= heatThreshold) {
-            if (!outputFull) {
-                // accumulate work when there's space
-                be.workProgress += baseWork * be.workMultiplier;
+        // === Work accumulation model with delta clamp ===
+        if (be.heat >= heatThreshold)
+        {
+            if (!outputFull)
+            {
+                // Centralized delta clamp: never allow massive jumps in a single tick
+                float rawDelta = baseWork * be.workMultiplier;
+                float clampedDelta = TemporalTime.clampDeltaPerTick(be, rawDelta);
+                be.workProgress += clampedDelta;
 
-                if (be.workProgress >= workThreshold) {
-                    int cycles = (int) (be.workProgress / workThreshold);
-                    for (int i = 0; i < cycles; i++) {
-                        boolean produced = be.tryGenerateExoticMatter();
-                        if (!produced) {
-                            // output became full mid-loop -> clamp progress below threshold
-                            be.workProgress = Math.min(be.workProgress, workThreshold - 0.0001f);
-                            break;
+                boolean allowMulti = TemporalConfig.ALLOW_MULTI_CYCLE_IN_SINGLE_TICK.get();
+
+                if (be.workProgress >= workThreshold)
+                {
+                    if (allowMulti)
+                    {
+                        int cycles = (int) (be.workProgress / workThreshold);
+                        for (int i = 0; i < cycles; i++)
+                        {
+                            boolean produced = be.tryGenerateExoticMatter();
+                            if (!produced)
+                            {
+                                be.workProgress = Math.min(be.workProgress, workThreshold - 0.0001f);
+                                break;
+                            }
+                            be.workProgress -= workThreshold;
                         }
-                        be.workProgress -= workThreshold;
                     }
+                    else
+                    {
+                        // Single cycle resolution only
+                        boolean produced = be.tryGenerateExoticMatter();
+                        if (produced)
+                        {
+                            be.workProgress -= workThreshold;
+                        }
+                        else
+                        {
+                            // Output became full mid-cycle: clamp below threshold
+                            be.workProgress = Math.min(be.workProgress, workThreshold - 0.0001f);
+                        }
+                    }
+
                     if (be.workProgress < 0f) be.workProgress = 0f;
                 }
-            } else {
-                // output full: pause accumulation and clamp progress so no instant burst later
-                be.workProgress = Math.min(be.workProgress, workThreshold - 0.0001f);
             }
+        }
+        else
+        {
+            // output full: pause accumulation and clamp progress so no instant burst later
+            be.workProgress = Math.min(be.workProgress, workThreshold - 0.0001f);
         }
 
         // === Decay multiplier timer ===
-        if (be.multiplierTicksRemaining > 0) {
+        if (be.multiplierTicksRemaining > 0)
+        {
             be.multiplierTicksRemaining--;
-            if (be.multiplierTicksRemaining <= 0) {
+            if (be.multiplierTicksRemaining <= 0)
+            {
                 be.workMultiplier = 1.0f;
             }
         }
 
-        // mark dirty
         be.setChanged();
     }
+
 
     /* ========== MenuProvider ========== */
     @Override
