@@ -5,7 +5,6 @@ import com.snog.temporalengineering.common.blockentity.TemporalProcessorBlockEnt
 import com.snog.temporalengineering.common.registry.ModBlockEntities;
 import com.snog.temporalengineering.common.registry.ModItems;
 
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -111,6 +110,12 @@ public class TemporalFieldGeneratorBlock extends BaseEntityBlock {
                 generator.setChanged();
                 return InteractionResult.SUCCESS;
             }
+        }
+
+        if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer)
+        {
+            net.minecraftforge.network.NetworkHooks.openGui(serverPlayer, generator, pos);
+            return InteractionResult.SUCCESS;
         }
 
         return InteractionResult.PASS;

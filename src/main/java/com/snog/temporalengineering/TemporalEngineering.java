@@ -7,6 +7,7 @@ import com.snog.temporalengineering.common.registry.ModMenuTypes;
 import com.snog.temporalengineering.common.config.TemporalConfig;
 import com.snog.temporalengineering.common.temporal.TemporalAdapters;
 import com.snog.temporalengineering.api.TemporalAdapterRegistry;
+import com.snog.temporalengineering.common.network.ModNetwork;
 
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -58,6 +59,8 @@ public class TemporalEngineering {
             TemporalAdapterRegistry.lock();
             TemporalEngineering.LOGGER.info("Temporal adapters registered and registry locked.");
         });
+
+        ModNetwork.register();
     }
 
     private void onConfigReload(final ModConfigEvent.Reloading evt) {

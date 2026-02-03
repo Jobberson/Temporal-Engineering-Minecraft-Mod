@@ -2,6 +2,7 @@ package com.snog.temporalengineering.client;
 
 import com.snog.temporalengineering.TemporalEngineering;
 import com.snog.temporalengineering.common.registry.ModMenuTypes;
+import com.snog.temporalengineering.client.screen.TemporalFieldGeneratorScreen;
 
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -25,5 +26,14 @@ public class ClientSetup {
             TemporalProcessorScreen::new
         );
 
+        MenuScreens.register(
+            ModMenuTypes.TEMPORAL_FIELD_GENERATOR_MENU.get(),
+            TemporalFieldGeneratorScreen::new
+        );
+
+        net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(
+            com.snog.temporalengineering.common.registry.ModBlockEntities.TEMPORAL_FIELD_GENERATOR.get(),
+            com.snog.temporalengineering.client.render.TemporalFieldGeneratorRenderer::new
+        );
     }
 }
